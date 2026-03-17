@@ -1,0 +1,33 @@
+# Python Virtual Environments
+.venv/
+.venv_nerf/
+.venv_nerfstudio/
+miniconda3/
+
+# Cache, compiled code
+__pycache__/
+*.pyc
+*.pyo
+
+# Datasets and 3D Assets
+gal_vihara_dataset/
+outputs/
+exports/
+colmap/
+
+# Video and Image files
+*.mp4
+*.jpeg
+*.jpg
+*.png
+
+# Documents and executable installers
+*.pdf
+*.exe
+
+# Text and Logs
+*.txt
+*.log
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
