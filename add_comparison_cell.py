@@ -1,0 +1,125 @@
+import json
+
+notebook_path = 'd:/Sansarana/train_object_detection.ipynb'
+with open(notebook_path, 'r', encoding='utf-8') as f:
+    nb = json.load(f)
+
+markdown_cell = {
+    "cell_type": "markdown",
+    "metadata": {},
+    "source": [
+        "# 5. Model Comparison Table\n",
+        "After running all evaluation cells above, populate the `results` dictionary below with each model's scores, then run this cell to generate the final comparison table."
+    ]
+}
+
+code_cell = {
+    "cell_type": "code",
+    "execution_count": None,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+        "# ============================================================\n",
+        "# MODEL COMPARISON TABLE\n",
+        "# Fill in the mAP scores from each model's evaluation cell output.\n",
+        "# ============================================================\n",
+        "\n",
+        "# -----------------------------------------------------------\n",
+        "# Paste your scores here after running each evaluation cell:\n",
+        "# -----------------------------------------------------------\n",
+        "results = {\n",
+        "    \"Faster R-CNN\\n(ResNet-50 FPN)\": {\n",
+        "        \"mAP@50\":      None,   # <- paste e.g. 0.8523\n",
+        "        \"mAP@75\":      None,\n",
+        "        \"mAP (0.5:0.95)\": None,\n",
+        "        \"Epochs\":      15,\n",
+        "        \"Backbone\":    \"ResNet-50 + FPN\",\n",
+        "        \"Format\":      \"COCO JSON\",\n",
+        "    },\n",
+        "    \"EfficientDet\\n(D0)\": {\n",
+        "        \"mAP@50\":      None,\n",
+        "        \"mAP@75\":      None,\n",
+        "        \"mAP (0.5:0.95)\": None,\n",
+        "        \"Epochs\":      15,\n",
+        "        \"Backbone\":    \"EfficientNet-B0 + BiFPN\",\n",
+        "        \"Format\":      \"Pascal VOC XML\",\n",
+        "    },\n",
+        "    \"Grounding DINO\\n(Base)\": {\n",
+        "        \"mAP@50\":      None,\n",
+        "        \"mAP@75\":      None,\n",
+        "        \"mAP (0.5:0.95)\": None,\n",
+        "        \"Epochs\":      5,\n",
+        "        \"Backbone\":    \"Swin-T + BERT (frozen)\",\n",
+        "        \"Format\":      \"YOLO TXT\",\n",
+        "    },\n",
+        "}\n",
+        "\n",
+        "# ---- Render table ----\n",
+        "import pandas as pd\n",
+        "from IPython.display import display, HTML\n",
+        "\n",
+        "rows = []\n",
+        "for model_name, scores in results.items():\n",
+        "    def fmt(v):\n",
+        "        return f\"{v:.4f}\" if isinstance(v, float) else (str(v) if v is not None else \"N/A\")\n",
+        "    rows.append({\n",
+        "        \"Model\":            model_name.replace('\\\\n', ' '),\n",
+        "        \"Backbone\":         scores[\"Backbone\"],\n",
+        "        \"Dataset Format\":   scores[\"Format\"],\n",
+        "        \"Epochs\":           scores[\"Epochs\"],\n",
+        "        \"mAP@50\":           fmt(scores[\"mAP@50\"]),\n",
+        "        \"mAP@75\":           fmt(scores[\"mAP@75\"]),\n",
+        "        \"mAP (0.5:0.95)\":   fmt(scores[\"mAP (0.5:0.95)\"]),\n",
+        "    })\n",
+        "\n",
+        "df = pd.DataFrame(rows).set_index(\"Model\")\n",
+        "\n",
+        "def highlight_best(col):\n",
+        "    \"\"\"Highlight the best (highest) numeric value in a column green.\"\"\"\n",
+        "    try:\n",
+        "        numeric = pd.to_numeric(col, errors='coerce')\n",
+        "        best = numeric.max()\n",
+        "        return ['background-color: #2ecc71; color: white; font-weight: bold'\n",
+        "                if pd.notna(v) and v == best else '' for v in numeric]\n",
+        "    except Exception:\n",
+        "        return ['' for _ in col]\n",
+        "\n",
+        "styled = (\n",
+        "    df.style\n",
+        "    .apply(highlight_best, subset=[\"mAP@50\", \"mAP@75\", \"mAP (0.5:0.95)\"])\n",
+        "    .set_caption(\"📊 Object Detection Model Comparison — Sansarana Statue Dataset\")\n",
+        "    .set_table_styles([{\n",
+        "        'selector': 'caption',\n",
+        "        'props': [('font-size', '16px'), ('font-weight', 'bold'), ('margin-bottom', '8px')]\n",
+        "    }, {\n",
+        "        'selector': 'th',\n",
+        "        'props': [('background-color', '#2c3e50'), ('color', 'white'),\n",
+        "                  ('padding', '10px'), ('text-align', 'center')]\n",
+        "    }, {\n",
+        "        'selector': 'td',\n",
+        "        'props': [('padding', '10px'), ('text-align', 'center'), ('border', '1px solid #ddd')]\n",
+        "    }])\n",
+        ")\n",
+        "\n",
+        "display(styled)\n",
+        "\n",
+        "# Also save results to JSON for your final report\n",
+        "import json, datetime\n",
+        "report = {\n",
+        "    \"generated\": datetime.datetime.now().isoformat(),\n",
+        "    \"dataset\": \"Sansarana Statue Dataset (COCO/VOC/YOLO)\",\n",
+        "    \"classes\": [\"seated\", \"standing\", \"reclining\"],\n",
+        "    \"models\": results\n",
+        "}\n",
+        "with open(r'd:\\Sansarana\\model_comparison_report.json', 'w') as f:\n",
+        "    json.dump(report, f, indent=2)\n",
+        "print(\"\\nReport saved to d:\\\\Sansarana\\\\model_comparison_report.json\")\n"
+    ]
+}
+
+nb['cells'].extend([markdown_cell, code_cell])
+
+with open(notebook_path, 'w', encoding='utf-8') as f:
+    json.dump(nb, f, indent=1)
+
+print(f"Done. Total cells: {len(nb['cells'])}")
